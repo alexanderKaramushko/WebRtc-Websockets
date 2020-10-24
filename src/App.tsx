@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
+import TicTocTae from './components/tic-toc-tae/TicTocTae';
 
 const App: FC = () => (
-  <h1>Games with WebRtc</h1>
+  <TicTocTae />
 );
 
 export default App;
