@@ -1,14 +1,5 @@
 import { action, makeObservable, observable } from 'mobx';
-
-enum Field {
-  EMPTY = -1,
-  CROSS = 0,
-  CIRCLE = 1,
-}
-
-interface FieldsStore {
-  fields: Field[][];
-}
+import { Field } from './types';
 
 class FieldsStore implements FieldsStore {
 

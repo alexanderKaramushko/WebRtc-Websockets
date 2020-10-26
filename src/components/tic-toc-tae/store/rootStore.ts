@@ -1,4 +1,4 @@
-import FieldsStore from './FieldsStore';
+import FieldsStore from './FieldsStore/store';
 
 class RootStore {
 
