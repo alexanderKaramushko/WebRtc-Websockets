@@ -1,5 +1,5 @@
 import React, { FC, ReactElement } from 'react';
-import { Fields } from './Field/Field';
+import { Fields } from './Fields/Fields';
 import RootStore from './store/rootStore';
 import StoreProvider from './StoreProvider';
 
