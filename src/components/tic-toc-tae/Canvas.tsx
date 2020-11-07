@@ -1,4 +1,7 @@
 import React, { FC, ReactElement, useEffect } from 'react';
+import Circle from '../Shapes/Circle';
+import Square from '../Shapes/Square';
+import Cross from '../Shapes/Cross';
 import { Field } from './store/FieldsStore/types';
 
 interface Props {
@@ -21,8 +24,6 @@ const Canvas: FC<Props> = (props): ReactElement => {
   }
 
   function buildCanvas(context: CanvasRenderingContext2D): void {
-    context.fillStyle = 'red';
-
     const [columns] = fields;
 
     const derivedHeight = (height as number) / fields.length;
@@ -35,7 +36,31 @@ const Canvas: FC<Props> = (props): ReactElement => {
         const offsetX = j * derivedWidth;
         const offsetY = i * derivedHeight;
 
-        context.strokeRect(offsetX, offsetY, derivedWidth, derivedHeight);
+        const centerX = offsetX + derivedWidth / 2;
+        const centerY = offsetY + derivedHeight / 2;
+
+        const square = new Square({
+          height: derivedHeight,
+          width: derivedWidth,
+          x: offsetX,
+          y: offsetY,
+        });
+        const circle = new Circle({
+          anticlockwise: true,
+          radius: 30,
+          x: centerX,
+          y: centerY,
+        });
+        const cross = new Cross({
+          height: 20,
+          width: 20,
+          x: centerX,
+          y: centerY,
+        });
+
+        // cross.build(context, { stroke: true });
+        // circle.build(context, { fill: true });
+        square.build(context);
       }
     }
   }
