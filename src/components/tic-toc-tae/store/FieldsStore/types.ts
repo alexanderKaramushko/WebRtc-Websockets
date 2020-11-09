@@ -6,6 +6,7 @@ export enum FieldTypes {
 
 export interface Field {
   height: number;
+  id: string;
   type: FieldTypes;
   width: number;
   x: number;

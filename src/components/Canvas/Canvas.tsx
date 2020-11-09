@@ -14,7 +14,7 @@ const Canvas: FC<Props> = (props): ReactElement => {
     canvas = ref;
   }
 
-  function handleClick(event: MouseEvent<HTMLCanvasElement>) {
+  function handleClick(event: MouseEvent<HTMLCanvasElement>): void {
     const context = (canvas as HTMLCanvasElement).getContext('2d');
 
     if (context) {
@@ -28,7 +28,8 @@ const Canvas: FC<Props> = (props): ReactElement => {
     if (context) {
       build(context);
     }
-  }, [canvas, build]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canvas]);
 
   return (
     <canvas
