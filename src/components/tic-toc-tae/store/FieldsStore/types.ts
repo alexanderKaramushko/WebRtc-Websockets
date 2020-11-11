@@ -14,5 +14,7 @@ export interface Field {
 }
 
 export interface FieldsStore {
+  currentFieldId: string;
   fields: Field[][];
+  player: FieldTypes;
 }

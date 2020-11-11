@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-one-expression-per-line */
 import React, { FC, MouseEvent, ReactElement, useContext } from 'react';
 import { observer } from 'mobx-react';
 import { StoreContext } from '../StoreProvider';
@@ -9,7 +10,7 @@ import Cross from '../../Shapes/Cross';
 
 const Fields: FC = (): ReactElement => {
   const { fieldsStore } = useContext(StoreContext);
-  const { fields, getFieldByCoords, player, updateField, updatePlayer } = fieldsStore;
+  const { fields, getFieldByCoords, isVictory, player, updateCurrentFieldId, updateField, updatePlayer } = fieldsStore;
 
   const canvasHeight = 300;
   const canvasWidth = 300;
@@ -53,6 +54,10 @@ const Fields: FC = (): ReactElement => {
   function handleClick(event: MouseEvent<HTMLCanvasElement>, context: CanvasRenderingContext2D): void {
     event.persist();
 
+    if (isVictory) {
+      return;
+    }
+
     const { pageX, pageY, target } = event;
 
     const clickInX = pageX - (target as HTMLElement).offsetLeft;
@@ -61,7 +66,7 @@ const Fields: FC = (): ReactElement => {
     const fieldByCoords = getFieldByCoords(clickInX, clickInY);
 
     if (fieldByCoords) {
-      const { y, x, width, type, height, id } = fieldByCoords;
+      const { height, id, type, width, x, y } = fieldByCoords;
 
       if (type !== FieldTypes.EMPTY) {
         return;
@@ -71,6 +76,7 @@ const Fields: FC = (): ReactElement => {
       const centerY = y + height / 2;
 
       if (player === FieldTypes.CIRCLE) {
+        // TODO: split code, SOLID
         const circle = new Circle({
           anticlockwise: true,
           radius: 30,
@@ -93,16 +99,20 @@ const Fields: FC = (): ReactElement => {
       }
 
       updateField(id, { type: player });
+      updateCurrentFieldId(id);
     }
   }
 
   return (
-    <Canvas
-      build={build}
-      height={canvasHeight}
-      onClick={handleClick}
-      width={canvasWidth}
-    />
+    <>
+      {isVictory && <div>Victory!</div>}
+      <Canvas
+        build={build}
+        height={canvasHeight}
+        onClick={handleClick}
+        width={canvasWidth}
+      />
+    </>
   );
 };
 

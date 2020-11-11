@@ -1,11 +1,14 @@
-import { action, makeObservable, observable } from 'mobx';
 import uniqId from 'lodash/uniqueId';
 import map from 'lodash/map';
 import flatten from 'lodash/flatten';
 import find from 'lodash/find';
+import filter from 'lodash/filter';
+import { action, computed, makeObservable, observable } from 'mobx';
 import { Field, FieldTypes } from './types';
 
 class FieldsStore implements FieldsStore {
+
+  @observable currentFieldId = '';
 
   @observable player = FieldTypes.CROSS;
 
@@ -27,6 +30,26 @@ class FieldsStore implements FieldsStore {
     ],
   ];
 
+  @computed get isVictory(): boolean {
+    const flattenedFields = flatten(this.fields);
+    const setField = find(flattenedFields, (({ id }) => id === this.currentFieldId));
+
+    if (!setField) {
+      return false;
+    }
+
+    const {
+      y: soughtY,
+      x: soughtX,
+      type: soughtType,
+    } = setField;
+
+    const xIntersections = filter(flattenedFields, ({ y, type }) => y === soughtY && type === soughtType);
+    const yIntersections = filter(flattenedFields, ({ x, type }) => x === soughtX && type === soughtType);
+
+    return xIntersections.length === 3 || yIntersections.length === 3;
+  }
+
   constructor() {
     makeObservable(this);
   }
@@ -34,6 +57,11 @@ class FieldsStore implements FieldsStore {
   @action.bound
   updatePlayer(player: FieldTypes): void {
     this.player = player;
+  }
+
+  @action.bound
+  updateCurrentFieldId(id: string): void {
+    this.currentFieldId = id;
   }
 
   @action.bound
