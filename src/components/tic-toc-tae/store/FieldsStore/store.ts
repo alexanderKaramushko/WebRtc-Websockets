@@ -4,7 +4,7 @@ import flatten from 'lodash/flatten';
 import find from 'lodash/find';
 import filter from 'lodash/filter';
 import { action, computed, makeObservable, observable } from 'mobx';
-import { Field, FieldTypes } from './types';
+import { Field, FieldTypes, LinearVictory } from './types';
 
 class FieldsStore implements FieldsStore {
 
@@ -30,24 +30,29 @@ class FieldsStore implements FieldsStore {
     ],
   ];
 
-  @computed get isVictory(): boolean {
+  @computed get getLinearVictory(): LinearVictory | null {
     const flattenedFields = flatten(this.fields);
-    const setField = find(flattenedFields, (({ id }) => id === this.currentFieldId));
+    const field = find(flattenedFields, (({ id }) => id === this.currentFieldId));
 
-    if (!setField) {
-      return false;
+    if (!field) {
+      return null;
     }
 
     const {
       y: soughtY,
       x: soughtX,
       type: soughtType,
-    } = setField;
+    } = field;
 
     const xIntersections = filter(flattenedFields, ({ y, type }) => y === soughtY && type === soughtType);
     const yIntersections = filter(flattenedFields, ({ x, type }) => x === soughtX && type === soughtType);
 
-    return xIntersections.length === 3 || yIntersections.length === 3;
+    const fields = flatten(filter([xIntersections, yIntersections], ((intersection) => intersection.length === 3)));
+
+    return {
+      fields,
+      isVictory: fields.length === 3,
+    };
   }
 
   constructor() {

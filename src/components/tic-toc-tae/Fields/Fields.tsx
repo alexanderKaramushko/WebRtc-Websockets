@@ -10,7 +10,15 @@ import Cross from '../../Shapes/Cross';
 
 const Fields: FC = (): ReactElement => {
   const { fieldsStore } = useContext(StoreContext);
-  const { fields, getFieldByCoords, isVictory, player, updateCurrentFieldId, updateField, updatePlayer } = fieldsStore;
+  const {
+    fields,
+    getFieldByCoords,
+    getLinearVictory,
+    player,
+    updateCurrentFieldId,
+    updateField,
+    updatePlayer,
+  } = fieldsStore;
 
   const canvasHeight = 300;
   const canvasWidth = 300;
@@ -54,7 +62,7 @@ const Fields: FC = (): ReactElement => {
   function handleClick(event: MouseEvent<HTMLCanvasElement>, context: CanvasRenderingContext2D): void {
     event.persist();
 
-    if (isVictory) {
+    if (getLinearVictory?.isVictory) {
       return;
     }
 
@@ -102,7 +110,7 @@ const Fields: FC = (): ReactElement => {
   }
 
   useEffect(() => {
-    if (!isVictory) {
+    if (!getLinearVictory?.isVictory) {
       const { CIRCLE, CROSS } = FieldTypes;
 
       updatePlayer(player === CIRCLE ? CROSS : CIRCLE);
@@ -111,7 +119,7 @@ const Fields: FC = (): ReactElement => {
 
   return (
     <>
-      {isVictory && <div>Победа игрока {player}!</div>}
+      {getLinearVictory?.isVictory && <div>Победа игрока {player}!</div>}
       <Canvas
         build={build}
         height={canvasHeight}
