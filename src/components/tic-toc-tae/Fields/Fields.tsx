@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-one-expression-per-line */
-import React, { FC, MouseEvent, ReactElement, useContext } from 'react';
+import React, { FC, MouseEvent, ReactElement, useContext, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import { StoreContext } from '../StoreProvider';
 import { FieldTypes } from '../store/FieldsStore/types';
@@ -85,7 +85,6 @@ const Fields: FC = (): ReactElement => {
         });
 
         circle.build(context, { stroke: true });
-        updatePlayer(FieldTypes.CROSS);
       } else if (player === FieldTypes.CROSS) {
         const cross = new Cross({
           height: 20,
@@ -95,7 +94,6 @@ const Fields: FC = (): ReactElement => {
         });
 
         cross.build(context, { stroke: true });
-        updatePlayer(FieldTypes.CIRCLE);
       }
 
       updateField(id, { type: player });
@@ -103,9 +101,17 @@ const Fields: FC = (): ReactElement => {
     }
   }
 
+  useEffect(() => {
+    if (!isVictory) {
+      const { CIRCLE, CROSS } = FieldTypes;
+
+      updatePlayer(player === CIRCLE ? CROSS : CIRCLE);
+    }
+  }, [fields]);
+
   return (
     <>
-      {isVictory && <div>Victory!</div>}
+      {isVictory && <div>Победа игрока {player}!</div>}
       <Canvas
         build={build}
         height={canvasHeight}
