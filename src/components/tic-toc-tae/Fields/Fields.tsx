@@ -13,7 +13,7 @@ const Fields: FC = (): ReactElement => {
   const {
     fields,
     getFieldByCoords,
-    getLinearVictory,
+    isVictory,
     player,
     updateCurrentFieldId,
     updateField,
@@ -62,7 +62,7 @@ const Fields: FC = (): ReactElement => {
   function handleClick(event: MouseEvent<HTMLCanvasElement>, context: CanvasRenderingContext2D): void {
     event.persist();
 
-    if (getLinearVictory?.isVictory) {
+    if (isVictory) {
       return;
     }
 
@@ -110,7 +110,7 @@ const Fields: FC = (): ReactElement => {
   }
 
   useEffect(() => {
-    if (!getLinearVictory?.isVictory) {
+    if (!isVictory) {
       const { CIRCLE, CROSS } = FieldTypes;
 
       updatePlayer(player === CIRCLE ? CROSS : CIRCLE);
@@ -119,7 +119,7 @@ const Fields: FC = (): ReactElement => {
 
   return (
     <>
-      {getLinearVictory?.isVictory && <div>Победа игрока {player}!</div>}
+      {isVictory && <div>Победа игрока {player}!</div>}
       <Canvas
         build={build}
         height={canvasHeight}

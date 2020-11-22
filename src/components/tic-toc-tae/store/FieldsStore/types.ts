@@ -18,8 +18,3 @@ export interface FieldsStore {
   fields: Field[][];
   player: FieldTypes;
 }
-
-export interface LinearVictory {
-  fields: Field[];
-  isVictory: boolean;
-}

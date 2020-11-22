@@ -4,7 +4,7 @@ import flatten from 'lodash/flatten';
 import find from 'lodash/find';
 import filter from 'lodash/filter';
 import { action, computed, makeObservable, observable } from 'mobx';
-import { Field, FieldTypes, LinearVictory } from './types';
+import { Field, FieldTypes } from './types';
 
 class FieldsStore implements FieldsStore {
 
@@ -30,12 +30,18 @@ class FieldsStore implements FieldsStore {
     ],
   ];
 
-  @computed get getLinearVictory(): LinearVictory | null {
+  @computed get rowLength(): number {
+    const [row] = this.fields;
+
+    return row.length;
+  }
+
+  @computed get getLinearFields(): Field[] {
     const flattenedFields = flatten(this.fields);
     const field = find(flattenedFields, (({ id }) => id === this.currentFieldId));
 
     if (!field) {
-      return null;
+      return [];
     }
 
     const {
@@ -49,10 +55,61 @@ class FieldsStore implements FieldsStore {
 
     const fields = flatten(filter([xIntersections, yIntersections], ((intersection) => intersection.length === 3)));
 
-    return {
-      fields,
-      isVictory: fields.length === 3,
-    };
+    return fields;
+  }
+
+  @computed get getForwardDiagonalFields(): Field[] {
+    const flattenedFields = flatten(this.fields);
+    const field = find(flattenedFields, (({ id }) => id === this.currentFieldId));
+
+    const fields = [];
+
+    for (let index = 0; index < flattenedFields.length; index += 1) {
+      if (index % this.rowLength === 0) {
+        const middle = index / this.rowLength;
+        const flattenedField = flattenedFields[index + middle];
+
+        if (field?.type === flattenedField.type) {
+          fields.push(flattenedField);
+        }
+      }
+    }
+
+    return fields;
+  }
+
+  @computed get getBackwardDiagonalFields(): Field[] {
+    const flattenedFields = flatten(this.fields);
+    const field = find(flattenedFields, (({ id }) => id === this.currentFieldId));
+
+    const fields = [];
+
+    let offsetIndex = 0;
+
+    for (let index = 0; index < flattenedFields.length; index += 1) {
+      const isNewRow = (index + 1) % this.rowLength === 0;
+
+      if (isNewRow) {
+        const flattenedField = flattenedFields[index - offsetIndex];
+
+        if (field?.type === flattenedField.type) {
+          fields.push(flattenedField);
+        }
+        offsetIndex += 1;
+      }
+    }
+
+    return fields;
+  }
+
+  @computed get isVictory(): boolean {
+    const victoryRows = [
+      this.getLinearFields,
+      this.getBackwardDiagonalFields,
+      this.getForwardDiagonalFields,
+    ];
+
+    return victoryRows.some((victoryRow) => victoryRow.length === this.rowLength);
   }
 
   constructor() {
