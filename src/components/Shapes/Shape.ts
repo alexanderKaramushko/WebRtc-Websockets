@@ -1,15 +1,24 @@
+import { FieldTypes } from '../tic-toc-tae/store/FieldsStore/types';
+
 interface ShapeInterface {
-  build: (context: CanvasRenderingContext2D, options: {}) => void;
-  x: number;
-  y: number;
+  build: (context: CanvasRenderingContext2D) => void;
 }
 
-abstract class Shape implements ShapeInterface {
+class Shape<S> {
 
-  abstract x: number;
-  abstract y: number;
+  shapes: (S & ShapeInterface)[];
 
-  abstract build(context: CanvasRenderingContext2D, options: {}): void;
+  constructor(shapes: (S & ShapeInterface)[]) {
+    this.shapes = shapes;
+  }
+
+  build(type: FieldTypes, context: CanvasRenderingContext2D): void {
+    const shape = this.shapes.find((s) => s.constructor.name === type);
+
+    if (shape) {
+      shape.build(context);
+    }
+  }
 
 }
 

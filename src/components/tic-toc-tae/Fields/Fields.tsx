@@ -7,6 +7,7 @@ import Square from '../../Shapes/Square';
 import Canvas from '../../Canvas/Canvas';
 import Circle from '../../Shapes/Circle';
 import Cross from '../../Shapes/Cross';
+import Shape from '../../Shapes/Shape';
 
 const Fields: FC = (): ReactElement => {
   const { fieldsStore } = useContext(StoreContext);
@@ -83,26 +84,24 @@ const Fields: FC = (): ReactElement => {
       const centerX = x + width / 2;
       const centerY = y + height / 2;
 
-      if (player === FieldTypes.CIRCLE) {
-        // TODO: split code, SOLID
-        const circle = new Circle({
+      const shape = new Shape<Circle | Cross>([
+        new Circle({
           anticlockwise: true,
           radius: 30,
+          stroke: true,
           x: centerX,
           y: centerY,
-        });
-
-        circle.build(context, { stroke: true });
-      } else if (player === FieldTypes.CROSS) {
-        const cross = new Cross({
+        }),
+        new Cross({
           height: 20,
+          stroke: true,
           width: 20,
           x: centerX,
           y: centerY,
-        });
+        }),
+      ]);
 
-        cross.build(context, { stroke: true });
-      }
+      shape.build(player, context);
 
       updateField(id, { type: player });
       updateCurrentFieldId(id);

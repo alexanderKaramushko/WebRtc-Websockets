@@ -1,46 +1,46 @@
-import Shape from './Shape';
-
 interface Args {
+  color?: string;
+  fill?: boolean;
   height: number;
+  stroke?: boolean;
   width: number;
   x: number;
   y: number;
 }
 
-interface BuildOptions {
-  color?: string;
-  fill?: boolean;
-  stroke?: boolean;
-}
+class Cross {
 
-class Cross extends Shape {
-
+  public readonly color?: string;
+  public readonly fill?: boolean;
   public readonly height: number;
+  public readonly stroke?: boolean;
   public readonly width: number;
   public readonly x: number;
   public readonly y: number;
 
   constructor(args: Args) {
-    super();
-
     const {
+      color,
+      fill,
       height,
+      stroke,
       width,
       x,
       y,
     } = args;
 
+    this.color = color;
+    this.fill = fill;
     this.height = height;
+    this.stroke = stroke;
     this.width = width;
     this.x = x;
     this.y = y;
   }
 
-  build(context: CanvasRenderingContext2D, options: BuildOptions = {}): void {
-    const { stroke, fill, color } = options;
-
-    context.fillStyle = color || '#000';
-    context.strokeStyle = color || '#000';
+  build(context: CanvasRenderingContext2D): void {
+    context.fillStyle = this.color || '#000';
+    context.strokeStyle = this.color || '#000';
 
     context.beginPath();
 
@@ -50,11 +50,11 @@ class Cross extends Shape {
     context.moveTo(this.x + this.width, this.y - this.height);
     context.lineTo(this.x - this.width, this.y + this.height);
 
-    if (fill) {
+    if (this.fill) {
       context.fill();
     }
 
-    if (stroke) {
+    if (this.stroke) {
       context.stroke();
     }
 
@@ -62,4 +62,5 @@ class Cross extends Shape {
   }
 
 }
+
 export default Cross;

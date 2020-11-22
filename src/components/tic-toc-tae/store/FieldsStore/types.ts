@@ -1,7 +1,7 @@
 export enum FieldTypes {
-  CIRCLE = 'Круг',
-  CROSS = 'Крестик',
-  EMPTY = 'Пустое поле',
+  CIRCLE = 'Circle',
+  CROSS = 'Cross',
+  EMPTY = 'Empty',
 }
 
 export interface Field {
