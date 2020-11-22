@@ -18,3 +18,9 @@ export interface FieldsStore {
   fields: Field[][];
   player: FieldTypes;
 }
+
+export interface Victory {
+  by: 'linear' | 'vertical' | 'backwardDiagonal' | 'forwardDiagonal';
+  fields: Field[];
+  isVictory: boolean;
+}

@@ -4,7 +4,7 @@ import flatten from 'lodash/flatten';
 import find from 'lodash/find';
 import filter from 'lodash/filter';
 import { action, computed, makeObservable, observable } from 'mobx';
-import { Field, FieldTypes } from './types';
+import { Field, FieldTypes, Victory } from './types';
 
 class FieldsStore implements FieldsStore {
 
@@ -102,14 +102,31 @@ class FieldsStore implements FieldsStore {
     return fields;
   }
 
-  @computed get isVictory(): boolean {
-    const victoryRows = [
-      this.getLinearFields,
-      this.getBackwardDiagonalFields,
-      this.getForwardDiagonalFields,
-    ];
+  @computed get victory(): Victory | null {
+    const baseVictory = { isVictory: true };
 
-    return victoryRows.some((victoryRow) => victoryRow.length === this.rowLength);
+    if (this.getLinearFields.length === this.rowLength) {
+      const { x: firstFieldX, y: firstFieldY } = this.getLinearFields[0];
+      const { x: lastFieldX, y: lastFieldY } = this.getLinearFields[this.getLinearFields.length - 1];
+
+      if (firstFieldY === lastFieldY) {
+        return { ...baseVictory, by: 'linear', fields: this.getLinearFields };
+      }
+
+      if (firstFieldX === lastFieldX) {
+        return { ...baseVictory, by: 'vertical', fields: this.getLinearFields };
+      }
+    }
+
+    if (this.getForwardDiagonalFields.length === this.rowLength) {
+      return { ...baseVictory, by: 'forwardDiagonal', fields: this.getForwardDiagonalFields };
+    }
+
+    if (this.getBackwardDiagonalFields.length === this.rowLength) {
+      return { ...baseVictory, by: 'backwardDiagonal', fields: this.getBackwardDiagonalFields };
+    }
+
+    return null;
   }
 
   constructor() {
