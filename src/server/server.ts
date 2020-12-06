@@ -19,7 +19,6 @@ function sendToClients(data: PlayersData): void {
 }
 
 app.use(bodyParser.text());
-app.use(bodyParser.text());
 
 app.post('/player-off', (req) => {
   const { id } = JSON.parse(req.body);

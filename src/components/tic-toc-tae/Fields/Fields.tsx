@@ -188,6 +188,7 @@ const Fields: FC = (): ReactElement => {
 
       updatePlayer(player === CIRCLE ? CROSS : CIRCLE);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fields]);
 
   return (
