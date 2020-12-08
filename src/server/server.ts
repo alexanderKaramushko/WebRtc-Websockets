@@ -1,56 +1,55 @@
 import http from 'http';
 import Ws from 'ws';
 import express from 'express';
-import bodyParser from 'body-parser';
 import uniqueId from 'lodash/uniqueId';
-import { Player, PlayersData } from './types';
+import forEach from 'lodash/forEach';
+import { ExtendedWs } from './types';
 
 const app = express();
 const server = http.createServer(app);
 
 const websocket = new Ws.Server({ server });
-const players: Player[] = [
-  { id: uniqueId(), isOnline: false },
-  { id: uniqueId(), isOnline: false },
-];
+const connectedClients = new Map<string, ExtendedWs>();
 
-function sendToClients(data: PlayersData): void {
-  websocket.clients.forEach((client) => client.send(JSON.stringify(data)));
+function refreshIsAlive(wsClientStream: Ws, isAlive): void {
+  // eslint-disable-next-line no-param-reassign
+  (wsClientStream as ExtendedWs).isAlive = isAlive;
 }
 
-app.use(bodyParser.text());
+websocket.on('connection', (wsClientStream) => {
+  const thisStreamId = uniqueId();
 
-app.post('/player-off', (req) => {
-  const { id } = JSON.parse(req.body);
+  connectedClients.set(thisStreamId, wsClientStream as ExtendedWs);
 
-  const index = players.findIndex(({ id: innerId }) => innerId === id);
-  const player = { ...players[index], isOnline: false };
-
-  players.splice(index, 1, player);
-
-  sendToClients({
-    player,
-    players,
+  wsClientStream.on('close', () => {
+    connectedClients.delete(thisStreamId);
   });
-});
 
-websocket.on('connection', (ws) => {
-  ws.on('message', (message) => {
-    const client = JSON.parse(message as string);
+  refreshIsAlive(wsClientStream, true);
 
-    if (client.isOnline) {
-      const index = players.findIndex(({ isOnline }) => !isOnline);
-      const player = { ...players[index], isOnline: true };
-
-      players.splice(index, 1, player);
-
-      sendToClients({
-        player,
-        players,
-      });
+  wsClientStream.on('message', (message) => {
+    if (message === 'pong') {
+      refreshIsAlive(wsClientStream, true);
     }
   });
 });
+
+setInterval(() => {
+  const clientStreams = Array.from(connectedClients.values());
+
+  forEach<ExtendedWs>(clientStreams, (clientStream) => {
+    const { isAlive } = clientStream;
+
+    if (!isAlive) {
+      clientStream.terminate();
+      return;
+    }
+
+    refreshIsAlive(clientStream, false);
+    clientStream.send('ping');
+    clientStream.send(clientStreams.length);
+  });
+}, 2000);
 
 server.listen(8080, () => {
   // eslint-disable-next-line no-console

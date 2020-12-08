@@ -1,9 +1,6 @@
-export interface Player {
-  id?: string;
-  isOnline: boolean;
-}
+import Ws from 'ws';
 
-export interface PlayersData {
-  player: Player;
-  players: Player[];
+export interface ExtendedWs extends Ws {
+  isAlive: boolean;
+  id: string;
 }

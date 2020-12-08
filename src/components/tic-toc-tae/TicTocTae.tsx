@@ -1,5 +1,4 @@
 import React, { FC, ReactElement, useEffect, useState } from 'react';
-import { Player } from '../../server/types';
 import Fields from './Fields/Fields';
 import RootStore from './store/rootStore';
 import StoreProvider from './StoreProvider';
@@ -7,43 +6,39 @@ import StoreProvider from './StoreProvider';
 const store = new RootStore();
 
 const TicTocTae: FC = (): ReactElement => {
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [players, setPlayers] = useState(0);
 
-  function sendPlayer(player: Player, ws: WebSocket): void {
-    const strPlayer = JSON.stringify(player);
+  function renderPlayers(playersCount: number): JSX.Element[] {
+    const playersFill = new Array(playersCount).fill(null);
 
-    ws.send(strPlayer);
-  }
-
-  function renderOnlinePlayers(onlinePlayers: Player[]): JSX.Element[] {
-    return onlinePlayers.map(({ isOnline }: Player) => <span>{isOnline && 'online'}</span>);
+    return playersFill.map((_, index) => (
+      // eslint-disable-next-line react/no-array-index-key
+      <span key={index}>
+        player
+        {' '}
+        {index}
+      </span>
+    ));
   }
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:8080');
-    let id: string;
 
-    ws.onopen = (): void => {
-      sendPlayer({ isOnline: true }, ws);
-    };
+    ws.addEventListener('message', (message) => {
+      const { data } = message;
 
-    ws.onmessage = (message): void => {
-      const data = JSON.parse(message.data);
-
-      id = data.player.id;
-      setPlayers(data.players);
-    };
-
-    window.addEventListener('beforeunload', () => {
-      window.navigator.sendBeacon('http://localhost:8080/player-off', JSON.stringify({ id, isOnline: false }));
-      ws.close();
+      if (data === 'ping') {
+        ws.send('pong');
+      } else {
+        setPlayers(+data);
+      }
     });
   }, []);
 
   return (
     <StoreProvider store={store}>
       <Fields />
-      {players.length && renderOnlinePlayers(players)}
+      {players && renderPlayers(players)}
     </StoreProvider>
   );
 };
