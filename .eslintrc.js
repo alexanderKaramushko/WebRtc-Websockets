@@ -57,6 +57,7 @@ const config = {
             ImportDeclaration: 'never',
             ExportDeclaration: { multiline: true, minProperties: 3 },
         }],
+        'react-hooks/exhaustive-deps': 'off'
     },
     settings: {
         'import/extensions': ['.ts', '.tsx', '.json'],
