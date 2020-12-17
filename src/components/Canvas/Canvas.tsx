@@ -1,5 +1,7 @@
-import React, { FC, ReactElement, useEffect, MouseEvent } from 'react';
+import React, { FC, ReactElement, useEffect, useRef, MouseEvent, useContext } from 'react';
+import { observer } from 'mobx-react';
 import { Props } from './Canvas.types';
+import { StoreContext } from '../tic-toc-tae/StoreProvider';
 
 const defaultProps: Pick<Props, 'height' | 'width'> = {
   height: 200,
@@ -7,36 +9,43 @@ const defaultProps: Pick<Props, 'height' | 'width'> = {
 };
 
 const Canvas: FC<Props> = (props): ReactElement => {
-  const { build, height, onClick, width } = props;
-  let canvas: HTMLCanvasElement | null = null;
+  const { canvasStore } = useContext(StoreContext);
+  const {
+    build,
+    height,
+    onClick,
+    width,
+  } = props;
+  const { canvasContext, setCanvasContext } = canvasStore;
 
-  function getCanvasRef(ref: HTMLCanvasElement): void {
-    canvas = ref;
-  }
+  const canvas = useRef<HTMLCanvasElement | null>(null);
 
   function handleClick(event: MouseEvent<HTMLCanvasElement>): void {
-    const context = (canvas as HTMLCanvasElement).getContext('2d');
-
-    if (context) {
-      onClick(event, context);
+    if (canvasContext) {
+      onClick(event);
     }
   }
 
   useEffect(() => {
-    const context = (canvas as HTMLCanvasElement).getContext('2d');
+    const context = (canvas.current as HTMLCanvasElement).getContext('2d');
 
     if (context) {
-      build(context);
+      setCanvasContext(context);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvas]);
+  }, []);
+
+  useEffect(() => {
+    if (canvasContext) {
+      build();
+    }
+  }, [canvasContext]);
 
   return (
     <canvas
       height={height}
       id="canvas"
       onClick={handleClick}
-      ref={getCanvasRef}
+      ref={canvas}
       width={width}
     />
   );
@@ -44,4 +53,4 @@ const Canvas: FC<Props> = (props): ReactElement => {
 
 Canvas.defaultProps = defaultProps;
 
-export default Canvas;
+export default observer(Canvas);

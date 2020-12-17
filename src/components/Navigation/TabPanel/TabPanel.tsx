@@ -3,8 +3,8 @@ import { AppBar, Tabs } from '@material-ui/core';
 import TabContent from '../TabContent/TabContent';
 import { Props, Tab } from './TabPanel.types';
 
-const TabPanel: FC<Props> = (props) => {
-  const { children, tabs } = props;
+const TabPanel: FC<Props> = (props): ReactElement => {
+  const { children, tabs, height } = props;
   const [value, setValue] = useState(0);
 
   const handleChange = (_: ChangeEvent<{}>, newValue: number): void => {
@@ -16,10 +16,10 @@ const TabPanel: FC<Props> = (props) => {
       const { content } = item;
 
       return (
-        <div key={content?.toString()}>
+        <div key={content?.toString()} style={{ height }}>
           {value === index && (
             <TabContent>
-              {content}
+                {content}
             </TabContent>
           )}
         </div>
@@ -28,7 +28,7 @@ const TabPanel: FC<Props> = (props) => {
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Tabs
           onChange={handleChange}
           value={value}

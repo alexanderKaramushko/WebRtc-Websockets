@@ -10,8 +10,6 @@ class FieldsStore implements FieldsStore {
 
   @observable currentFieldId = '';
 
-  @observable player = FieldTypes.CROSS;
-
   @observable fields: Field[][] = [
     [
       { height: 0, id: uniqId(), type: FieldTypes.EMPTY, width: 0, x: 0, y: 0 },
@@ -131,11 +129,6 @@ class FieldsStore implements FieldsStore {
 
   constructor() {
     makeObservable(this);
-  }
-
-  @action.bound
-  updatePlayer(player: FieldTypes): void {
-    this.player = player;
   }
 
   @action.bound

@@ -6,5 +6,6 @@ export interface Tab {
 
 export interface Props {
   children: ReactNode;
+  height?: string;
   tabs: Tab[];
 }

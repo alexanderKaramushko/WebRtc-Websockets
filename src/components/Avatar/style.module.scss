@@ -1,0 +1,19 @@
+@import '../../styles/variables.scss';
+
+$online: map-get($map: $interface_colors, $key: 'success');
+
+.avatar.online {
+  overflow: initial;
+  position: relative;
+
+  &:before {
+    background-color: $online;
+    border-radius: 100%;
+    bottom: 0;
+    content: '';
+    height: 10px;
+    position: absolute;
+    right: 3px;
+    width: 10px;
+  }
+}

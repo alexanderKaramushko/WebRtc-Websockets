@@ -11,21 +11,24 @@ import Shape from '../../Shapes/Shape';
 import Line from '../../Shapes/Line';
 
 const Fields: FC = (): ReactElement => {
-  const { fieldsStore } = useContext(StoreContext);
+  const { canvasStore, fieldsStore, playersStore } = useContext(StoreContext);
   const {
     fields,
     getFieldByCoords,
-    player,
     updateCurrentFieldId,
     updateField,
-    updatePlayer,
     victory,
   } = fieldsStore;
+  const {
+    player,
+    updatePlayer,
+  } = playersStore;
+  const { canvasContext } = canvasStore;
 
   const canvasHeight = 300;
   const canvasWidth = 300;
 
-  function build(context: CanvasRenderingContext2D): void {
+  function build(): void {
     const [columns] = fields;
 
     const derivedHeight = canvasHeight / fields.length;
@@ -57,12 +60,12 @@ const Fields: FC = (): ReactElement => {
         };
 
         updateField(id, updatedField);
-        square.build(context);
+        square.build(canvasContext as CanvasRenderingContext2D);
       }
     }
   }
 
-  function drawVictoryLine(context: CanvasRenderingContext2D): void {
+  function drawVictoryLine(): void {
     if (!victory) {
       return;
     }
@@ -93,7 +96,7 @@ const Fields: FC = (): ReactElement => {
         y2: y2 + height2 / 2,
       });
 
-      line.build(context);
+      line.build(canvasContext as CanvasRenderingContext2D);
     }
 
     if (victory.by === 'vertical') {
@@ -104,7 +107,7 @@ const Fields: FC = (): ReactElement => {
         y2: y2 + height2 - offset,
       });
 
-      line.build(context);
+      line.build(canvasContext as CanvasRenderingContext2D);
     }
 
     if (victory.by === 'forwardDiagonal') {
@@ -115,7 +118,7 @@ const Fields: FC = (): ReactElement => {
         y2: y2 + height2 - offset,
       });
 
-      line.build(context);
+      line.build(canvasContext as CanvasRenderingContext2D);
     }
 
     if (victory.by === 'backwardDiagonal') {
@@ -126,11 +129,11 @@ const Fields: FC = (): ReactElement => {
         y2: y2 + height2 - offset,
       });
 
-      line.build(context);
+      line.build(canvasContext as CanvasRenderingContext2D);
     }
   }
 
-  function drawShape(inField: Field, context: CanvasRenderingContext2D): void {
+  function drawShape(inField: Field): void {
     const { height, type, width, x, y } = inField;
 
     if (type === FieldTypes.EMPTY) {
@@ -154,53 +157,51 @@ const Fields: FC = (): ReactElement => {
         }),
       ]);
 
-      shape.build(player, context);
+      shape.build(player, canvasContext as CanvasRenderingContext2D);
     }
   }
 
-  function handleClick(event: MouseEvent<HTMLCanvasElement>, context: CanvasRenderingContext2D): void {
+  function handleClick(event: MouseEvent<HTMLCanvasElement>): void {
+    if (victory) {
+      return;
+    }
+
     event.persist();
 
-    if (victory) {
-      drawVictoryLine(context);
-    } else {
-      const { pageX, pageY, target } = event;
+    const { pageX, pageY, target } = event;
 
-      const clickInX = pageX - (target as HTMLElement).offsetLeft;
-      const clickInY = pageY - (target as HTMLElement).offsetTop;
+    const clickInX = pageX - (target as HTMLElement).offsetLeft;
+    const clickInY = pageY - (target as HTMLElement).offsetTop;
 
-      const fieldByCoords = getFieldByCoords(clickInX, clickInY);
+    const fieldByCoords = getFieldByCoords(clickInX, clickInY);
 
-      if (fieldByCoords) {
-        const { id } = fieldByCoords;
+    if (fieldByCoords) {
+      const { id } = fieldByCoords;
 
-        drawShape(fieldByCoords, context);
+      drawShape(fieldByCoords);
 
-        updateField(id, { type: player });
-        updateCurrentFieldId(id);
-      }
+      updateField(id, { type: player });
+      updateCurrentFieldId(id);
     }
   }
 
   useEffect(() => {
-    if (!victory) {
+    if (victory) {
+      drawVictoryLine();
+    } else {
       const { CIRCLE, CROSS } = FieldTypes;
 
       updatePlayer(player === CIRCLE ? CROSS : CIRCLE);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields]);
+  }, [fields, victory]);
 
   return (
-    <>
-      {victory && <div>Победа игрока {player}!</div>}
-      <Canvas
-        build={build}
-        height={canvasHeight}
-        onClick={handleClick}
-        width={canvasWidth}
-      />
-    </>
+    <Canvas
+      build={build}
+      height={canvasHeight}
+      onClick={handleClick}
+      width={canvasWidth}
+    />
   );
 };
 

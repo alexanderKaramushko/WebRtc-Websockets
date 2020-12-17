@@ -1,8 +1,8 @@
 import { MouseEvent } from 'react';
 
 export interface Props {
-  build: (context: CanvasRenderingContext2D) => void;
+  build: () => void;
   height?: number;
-  onClick: (event: MouseEvent<HTMLCanvasElement>, context: CanvasRenderingContext2D) => void;
+  onClick: (event: MouseEvent<HTMLCanvasElement>) => void;
   width?: number;
 }
