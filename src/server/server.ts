@@ -3,7 +3,7 @@ import Ws from 'ws';
 import express from 'express';
 import uniqueId from 'lodash/uniqueId';
 import forEach from 'lodash/forEach';
-import { ExtendedWs } from './types';
+import { ExtendedWs, WsData, WsEventTypes } from './types';
 
 const app = express();
 const server = http.createServer(app);
@@ -21,15 +21,39 @@ websocket.on('connection', (wsClientStream) => {
 
   connectedClients.set(thisStreamId, wsClientStream as ExtendedWs);
 
+  refreshIsAlive(wsClientStream, true);
+
   wsClientStream.on('close', () => {
     connectedClients.delete(thisStreamId);
   });
 
-  refreshIsAlive(wsClientStream, true);
+  wsClientStream.on('message', (message: string) => {
+    const { payload, type } = JSON.parse(message) as WsData;
 
-  wsClientStream.on('message', (message) => {
-    if (message === 'pong') {
+    if (type === WsEventTypes.PONG) {
       refreshIsAlive(wsClientStream, true);
+    } else if (type === WsEventTypes.RTC_OFFER) {
+      const clientStreams = Array.from(connectedClients.values());
+
+      forEach<ExtendedWs>(clientStreams, (clientStream) => {
+        const rtcOfferMessage = {
+          payload,
+          type: WsEventTypes.RTC_OFFER,
+        };
+
+        clientStream.send(JSON.stringify(rtcOfferMessage));
+      });
+    } else if (type === WsEventTypes.RTC_ANSWER) {
+      const clientStreams = Array.from(connectedClients.values());
+
+      forEach<ExtendedWs>(clientStreams, (clientStream) => {
+        const rtcAnswerMessage = {
+          payload,
+          type: WsEventTypes.RTC_ANSWER,
+        };
+
+        clientStream.send(JSON.stringify(rtcAnswerMessage));
+      });
     }
   });
 });
@@ -45,9 +69,15 @@ setInterval(() => {
       return;
     }
 
+    const pingMessage = {
+      payload: {
+        clients: clientStreams.length,
+      },
+      type: WsEventTypes.PING,
+    };
+
     refreshIsAlive(clientStream, false);
-    clientStream.send('ping');
-    clientStream.send(clientStreams.length);
+    clientStream.send(JSON.stringify(pingMessage));
   });
 }, 2000);
 

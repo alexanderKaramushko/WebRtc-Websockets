@@ -4,10 +4,10 @@
   "private": true,
   "proxy": "http://localhost:8080",
   "dependencies": {
-    "classnames": "^2.2.6",
     "@material-ui/core": "^4.11.2",
     "babel-loader": "^8.1.0",
     "body-parser": "^1.19.0",
+    "classnames": "^2.2.6",
     "express": "^4.17.1",
     "lodash": "^4.17.20",
     "mobx": "^6.0.1",
@@ -15,6 +15,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-scripts": "3.4.3",
+    "simple-peer": "^9.9.3",
     "ws": "^7.4.0"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "@types/node": "^12.12.68",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
+    "@types/simple-peer": "^9.6.1",
     "@types/ws": "^7.4.0",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
