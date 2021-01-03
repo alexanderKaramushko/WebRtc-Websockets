@@ -4,7 +4,7 @@ import { PlayersStoreModel } from './types';
 
 class PlayersStore implements PlayersStoreModel {
 
-  @observable players = [false, false];
+  @observable players: string[] = [];
 
   @observable player = FieldTypes.CROSS;
 
@@ -13,7 +13,7 @@ class PlayersStore implements PlayersStoreModel {
   }
 
   @action.bound
-  updatePlayers(players: boolean[]): void {
+  updatePlayers(players: string[]): void {
     this.players = players;
   }
 

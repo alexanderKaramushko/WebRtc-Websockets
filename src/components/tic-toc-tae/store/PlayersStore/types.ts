@@ -1,6 +1,6 @@
 import { FieldTypes } from '../FieldsStore/types';
 
 export interface PlayersStoreModel {
-  players: boolean[];
+  players: string[];
   player: FieldTypes;
 }

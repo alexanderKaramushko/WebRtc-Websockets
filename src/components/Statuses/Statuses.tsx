@@ -6,16 +6,18 @@ import { StoreContext } from '../tic-toc-tae/StoreProvider';
 
 const Statuses: FC = (): ReactElement => {
   const { playersStore } = useContext(StoreContext);
-  const [firstPlayer, secondPLayer] = playersStore.players;
+
+  function renderPlayers(players: string[]): ReactElement[] {
+    return players.map((player: string) => (
+      <Grid key={player} item>
+        <Avatar isOnline>{player}</Avatar>
+      </Grid>
+    ));
+  }
 
   return (
     <Grid container spacing={2}>
-      <Grid item>
-        <Avatar isOnline={firstPlayer} />
-      </Grid>
-      <Grid item>
-        <Avatar isOnline={secondPLayer} />
-      </Grid>
+      {renderPlayers(playersStore.players)}
     </Grid>
   );
 };

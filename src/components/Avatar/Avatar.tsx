@@ -4,7 +4,7 @@ import { Avatar as MuiAvatar } from '@material-ui/core';
 import { Props } from './Avatar.types';
 import styles from './style.module.scss';
 
-const Avatar: FC<Props> = ({ isOnline }): ReactElement => {
+const Avatar: FC<Props> = ({ children, isOnline }): ReactElement => {
   const classNames = classnames(
     styles.avatar,
     {
@@ -13,7 +13,7 @@ const Avatar: FC<Props> = ({ isOnline }): ReactElement => {
   );
 
   return (
-    <MuiAvatar className={classNames} />
+    <MuiAvatar className={classNames}>{children}</MuiAvatar>
   );
 };
 

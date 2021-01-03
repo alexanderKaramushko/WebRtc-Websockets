@@ -60,6 +60,7 @@ websocket.on('connection', (wsClientStream) => {
 
 setInterval(() => {
   const clientStreams = Array.from(connectedClients.values());
+  const clientsIds = Array.from(connectedClients.keys());
 
   forEach<ExtendedWs>(clientStreams, (clientStream) => {
     const { isAlive } = clientStream;
@@ -71,7 +72,7 @@ setInterval(() => {
 
     const pingMessage = {
       payload: {
-        clients: clientStreams.length,
+        clients: clientsIds,
       },
       type: WsEventTypes.PING,
     };
