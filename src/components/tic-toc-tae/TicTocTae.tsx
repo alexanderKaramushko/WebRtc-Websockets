@@ -10,8 +10,11 @@ const TicTocTae: FC = (): ReactElement => {
     const { ws } = webSocketStore;
     const {
       acceptAnswer,
+      initiatorPeer,
+      receiverPeer,
       sendAnswer,
       sendOffer,
+      updatePeerStatuses,
     } = peersStore;
 
     // todo hardcoded for now
@@ -43,6 +46,18 @@ const TicTocTae: FC = (): ReactElement => {
       if (isInitiator) {
         sendOffer(ws);
       }
+    });
+
+    receiverPeer.on('error', (error: any) => {
+      updatePeerStatuses(`Ошибка: ${error.code}`);
+    });
+
+    initiatorPeer.on('error', (error: any) => {
+      updatePeerStatuses(`Ошибка: ${error.code}`);
+    });
+
+    initiatorPeer.on('connect', () => {
+      updatePeerStatuses('Соединение установлено');
     });
   }, []);
 
