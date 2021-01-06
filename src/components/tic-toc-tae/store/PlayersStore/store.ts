@@ -8,6 +8,8 @@ class PlayersStore implements PlayersStoreModel {
 
   @observable player = FieldTypes.CROSS;
 
+  @observable hasTurn = true;
+
   constructor() {
     makeObservable(this);
   }
@@ -20,6 +22,11 @@ class PlayersStore implements PlayersStoreModel {
   @action.bound
   updatePlayer(player: FieldTypes): void {
     this.player = player;
+  }
+
+  @action.bound
+  updateTurn(hasTurn: boolean): void {
+    this.hasTurn = hasTurn;
   }
 
 }

@@ -19,8 +19,10 @@ const Fields: FC = (): ReactElement => {
     victory,
   } = fieldsStore;
   const {
+    hasTurn,
     player,
     updatePlayer,
+    updateTurn,
   } = playersStore;
   const { canvasContext } = canvasStore;
 
@@ -161,7 +163,7 @@ const Fields: FC = (): ReactElement => {
   }
 
   function handleClick(event: MouseEvent<HTMLCanvasElement>): void {
-    if (victory) {
+    if (victory || !hasTurn) {
       return;
     }
 
@@ -191,6 +193,8 @@ const Fields: FC = (): ReactElement => {
         receiverPeer.send(JSON.stringify(fieldPayload));
         updatePlayer(CROSS);
       }
+
+      updateTurn(false);
     }
   }
 
@@ -212,6 +216,7 @@ const Fields: FC = (): ReactElement => {
         updateCurrentFieldId(fieldByCoords.id);
         drawShape(fieldByCoords, player);
         updatePlayer(CROSS);
+        updateTurn(true);
       });
 
       receiverPeer.on('data', (data) => {
@@ -222,6 +227,7 @@ const Fields: FC = (): ReactElement => {
         updateCurrentFieldId(fieldByCoords.id);
         drawShape(fieldByCoords, player);
         updatePlayer(CIRCLE);
+        updateTurn(true);
       });
     }
   }, [canvasContext]);
