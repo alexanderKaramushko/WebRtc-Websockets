@@ -210,9 +210,9 @@ const Fields: FC = (): ReactElement => {
 
       initiatorPeer.on('data', (data) => {
         const { CROSS } = FieldTypes;
-        const { fieldByCoords, player } = JSON.parse(data);
+        const { fieldByCoords, player: type } = JSON.parse(data);
 
-        updateField(fieldByCoords.id, { type: player });
+        updateField(fieldByCoords.id, { type });
         updateCurrentFieldId(fieldByCoords.id);
         drawShape(fieldByCoords, player);
         updatePlayer(CROSS);
@@ -221,9 +221,9 @@ const Fields: FC = (): ReactElement => {
 
       receiverPeer.on('data', (data) => {
         const { CIRCLE } = FieldTypes;
-        const { fieldByCoords, player } = JSON.parse(data);
+        const { fieldByCoords, player: type } = JSON.parse(data);
 
-        updateField(fieldByCoords.id, { type: player });
+        updateField(fieldByCoords.id, { type });
         updateCurrentFieldId(fieldByCoords.id);
         drawShape(fieldByCoords, player);
         updatePlayer(CIRCLE);

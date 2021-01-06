@@ -4,11 +4,18 @@ import { WsData, WsEventTypes } from '../../server/types';
 import Fields from './Fields/Fields';
 
 const TicTocTae: FC = (): ReactElement => {
-  const { playersStore, webSocketStore, peersStore } = useContext(StoreContext);
+  const { peersStore, playersStore, webSocketStore } = useContext(StoreContext);
 
   useEffect(() => {
     const { ws } = webSocketStore;
-    const { initiatorPeer, receiverPeer } = peersStore;
+    const {
+      acceptAnswer,
+      sendAnswer,
+      sendOffer,
+    } = peersStore;
+
+    // todo hardcoded for now
+    const isInitiator = window.location.hash === '#initiator';
 
     ws.addEventListener('message', (message) => {
       const { data } = message;
@@ -21,44 +28,20 @@ const TicTocTae: FC = (): ReactElement => {
 
         ws.send(JSON.stringify(pongMessage));
         playersStore.updatePlayers(payload.clients);
-      } else if (type === WsEventTypes.RTC_OFFER && window.location.hash !== '#initiator') {
-        if (receiverPeer.destroyed) {
-          return;
-        }
+      }
 
-        receiverPeer.on('signal', (data) => {
-          const rtcAnswerMessage: WsData = {
-            payload: {
-              answer: JSON.stringify(data),
-            },
-            type: WsEventTypes.RTC_ANSWER,
-          };
+      if (type === WsEventTypes.RTC_OFFER && !isInitiator) {
+        sendAnswer(ws, payload);
+      }
 
-          ws.send(JSON.stringify(rtcAnswerMessage));
-        });
-
-        receiverPeer.signal(JSON.parse(payload.offer));
-      } else if (type === WsEventTypes.RTC_ANSWER) {
-        if (initiatorPeer.destroyed) {
-          return;
-        }
-
-        initiatorPeer.signal(JSON.parse(payload.answer));
+      if (type === WsEventTypes.RTC_ANSWER) {
+        acceptAnswer(ws, payload);
       }
     });
 
     ws.addEventListener('open', () => {
-      if (window.location.hash === '#initiator') {
-        initiatorPeer.on('signal', (data) => {
-          const rtcOfferMessage: WsData = {
-            payload: {
-              offer: JSON.stringify(data),
-            },
-            type: WsEventTypes.RTC_OFFER,
-          };
-
-          ws.send(JSON.stringify(rtcOfferMessage));
-        });
+      if (isInitiator) {
+        sendOffer(ws);
       }
     });
   }, []);
