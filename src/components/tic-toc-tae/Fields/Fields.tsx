@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-one-expression-per-line */
 import React, { FC, MouseEvent, ReactElement, useContext, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import { StoreContext } from '../StoreProvider';
@@ -11,7 +10,7 @@ import Shape from '../../Shapes/Shape';
 import Line from '../../Shapes/Line';
 
 const Fields: FC = (): ReactElement => {
-  const { canvasStore, fieldsStore, playersStore } = useContext(StoreContext);
+  const { canvasStore, fieldsStore, playersStore, peersStore } = useContext(StoreContext);
   const {
     fields,
     getFieldByCoords,
@@ -133,7 +132,7 @@ const Fields: FC = (): ReactElement => {
     }
   }
 
-  function drawShape(inField: Field): void {
+  function drawShape(inField: Field, fieldType?: FieldTypes): void {
     const { height, type, width, x, y } = inField;
 
     if (type === FieldTypes.EMPTY) {
@@ -157,7 +156,7 @@ const Fields: FC = (): ReactElement => {
         }),
       ]);
 
-      shape.build(player, canvasContext as CanvasRenderingContext2D);
+      shape.build(fieldType || player, canvasContext as CanvasRenderingContext2D);
     }
   }
 
@@ -176,24 +175,56 @@ const Fields: FC = (): ReactElement => {
     const fieldByCoords = getFieldByCoords(clickInX, clickInY);
 
     if (fieldByCoords) {
+      const { CIRCLE, CROSS } = FieldTypes;
       const { id } = fieldByCoords;
+      const { initiatorPeer, receiverPeer } = peersStore;
+      const fieldPayload = { fieldByCoords, player };
 
       drawShape(fieldByCoords);
-
       updateField(id, { type: player });
       updateCurrentFieldId(id);
+
+      if (window.location.hash === '#initiator') {
+        initiatorPeer.send(JSON.stringify(fieldPayload));
+        updatePlayer(CIRCLE);
+      } else {
+        receiverPeer.send(JSON.stringify(fieldPayload));
+        updatePlayer(CROSS);
+      }
     }
   }
 
   useEffect(() => {
     if (victory) {
       drawVictoryLine();
-    } else {
-      const { CIRCLE, CROSS } = FieldTypes;
-
-      updatePlayer(player === CIRCLE ? CROSS : CIRCLE);
     }
-  }, [fields, victory]);
+  }, [victory]);
+
+  useEffect(() => {
+    if (canvasContext) {
+      const { initiatorPeer, receiverPeer } = peersStore;
+
+      initiatorPeer.on('data', (data) => {
+        const { CROSS } = FieldTypes;
+        const { fieldByCoords, player } = JSON.parse(data);
+
+        updateField(fieldByCoords.id, { type: player });
+        updateCurrentFieldId(fieldByCoords.id);
+        drawShape(fieldByCoords, player);
+        updatePlayer(CROSS);
+      });
+
+      receiverPeer.on('data', (data) => {
+        const { CIRCLE } = FieldTypes;
+        const { fieldByCoords, player } = JSON.parse(data);
+
+        updateField(fieldByCoords.id, { type: player });
+        updateCurrentFieldId(fieldByCoords.id);
+        drawShape(fieldByCoords, player);
+        updatePlayer(CIRCLE);
+      });
+    }
+  }, [canvasContext]);
 
   return (
     <Canvas

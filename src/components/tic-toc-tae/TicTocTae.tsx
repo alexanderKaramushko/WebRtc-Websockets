@@ -1,17 +1,14 @@
 import React, { FC, ReactElement, useContext, useEffect } from 'react';
-import SimplePeer from 'simple-peer';
 import { StoreContext } from './StoreProvider';
 import { WsData, WsEventTypes } from '../../server/types';
 import Fields from './Fields/Fields';
 
 const TicTocTae: FC = (): ReactElement => {
-  const { playersStore } = useContext(StoreContext);
-  const initiatorPeer = new SimplePeer({
-    initiator: true,
-  });
+  const { playersStore, webSocketStore, peersStore } = useContext(StoreContext);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080');
+    const { ws } = webSocketStore;
+    const { initiatorPeer, receiverPeer } = peersStore;
 
     ws.addEventListener('message', (message) => {
       const { data } = message;
@@ -25,8 +22,6 @@ const TicTocTae: FC = (): ReactElement => {
         ws.send(JSON.stringify(pongMessage));
         playersStore.updatePlayers(payload.clients);
       } else if (type === WsEventTypes.RTC_OFFER && window.location.hash !== '#initiator') {
-        const receiverPeer = new SimplePeer();
-
         if (receiverPeer.destroyed) {
           return;
         }
