@@ -214,7 +214,7 @@ const Fields: FC = (): ReactElement => {
 
         updateField(fieldByCoords.id, { type });
         updateCurrentFieldId(fieldByCoords.id);
-        drawShape(fieldByCoords, player);
+        drawShape(fieldByCoords, type);
         updatePlayer(CROSS);
         updateTurn(true);
       });
@@ -225,7 +225,7 @@ const Fields: FC = (): ReactElement => {
 
         updateField(fieldByCoords.id, { type });
         updateCurrentFieldId(fieldByCoords.id);
-        drawShape(fieldByCoords, player);
+        drawShape(fieldByCoords, type);
         updatePlayer(CIRCLE);
         updateTurn(true);
       });
