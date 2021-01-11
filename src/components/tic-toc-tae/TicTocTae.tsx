@@ -2,6 +2,7 @@ import React, { FC, ReactElement, useContext, useEffect } from 'react';
 import { StoreContext } from './StoreProvider';
 import { WsData, WsEventTypes } from '../../server/types';
 import Fields from './Fields/Fields';
+import { PeerError } from './store/PeersStore/types';
 
 const TicTocTae: FC = (): ReactElement => {
   const { peersStore, playersStore, webSocketStore } = useContext(StoreContext);
@@ -48,11 +49,11 @@ const TicTocTae: FC = (): ReactElement => {
       }
     });
 
-    receiverPeer.on('error', (error: any) => {
+    receiverPeer.on('error', (error: PeerError) => {
       updatePeerStatuses(`Ошибка: ${error.code}`);
     });
 
-    initiatorPeer.on('error', (error: any) => {
+    initiatorPeer.on('error', (error: PeerError) => {
       updatePeerStatuses(`Ошибка: ${error.code}`);
     });
 
